@@ -1,0 +1,32 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>40307ca1-2afa-43b7-b415-e7229bf1a9e8</ProjectGuid>
+    <OutputType>File</OutputType>
+    <AssemblyName>AndroidDownloads.usqlpack</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <USQLProjectVersion>2</USQLProjectVersion>
+    <Name>AndroidDownloads</Name>
+    <RootNamespace>AndroidDownloads</RootNamespace>
+    <RuntimeVersion>default</RuntimeVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Script Include="DownloadAnalysis.usql" />
+    <ScriptCode Include="DownloadAnalysis.usql.cs">
+      <DependentUpon>DownloadAnalysis.usql</DependentUpon>
+    </ScriptCode>
+  </ItemGroup>
+  <!-- check for SDK Build target in current path then in USQLSDKPath-->
+  <Import Project="UsqlSDKBuild.targets" Condition="Exists('UsqlSDKBuild.targets')" />
+  <Import Project="$(USQLSDKPath)\UsqlSDKBuild.targets" Condition="!Exists('UsqlSDKBuild.targets') And '$(USQLSDKPath)' != '' And Exists('$(USQLSDKPath)\UsqlSDKBuild.targets')" />
+</Project>

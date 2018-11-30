@@ -1,0 +1,46 @@
+﻿// 0. Initialize file names
+// supported devices - maps device id to make and model
+DECLARE @input_phoneModels_File string = "/supported_devices.csv";
+// various download parameters including device id
+DECLARE @input_downloads_File string = "/installs_com.Powerup.Droid_201807_device.csv";
+// intended output result
+DECLARE @Output_DownloadResult_File string = "/Output_DownloadResults.csv";
+
+// 1. Extract - Skip the first row being a header and the file provided by Google is unicode
+@Models =
+    EXTRACT Retail_Branding string, // Make
+            Marketing_Name string,
+            Device string, // PhoneModelId
+            Model string
+    FROM @input_phoneModels_File
+    USING Extractors.Csv(skipFirstNRows:1, encoding:Encoding.Unicode);
+
+@Downloads =
+    EXTRACT Date string,
+            Package_Name string,
+            Device string,
+            Daily_Device_Installs int,
+            Daily_Device_Uninstalls int,
+            Daily_Device_Upgrades int,
+            Total_User_Installs int,
+            Daily_User_Installs int,
+            Daily_User_Uninstalls int,
+            Active_Device_Installs int,
+            Install_events int,
+            Update_events int,
+            Uninstall_events int
+    FROM @input_downloads_File
+    USING Extractors.Csv(skipFirstNRows:1, encoding:Encoding.Unicode);
+
+// 2. Transform to the desired results
+@downloadResults =   
+    SELECT d.Date, m.Device, m.Retail_Branding, m.Model, d.Active_Device_Installs
+    FROM @Models AS m
+         INNER JOIN (SELECT Device, Date, Active_Device_Installs FROM @Downloads) AS d   
+         ON m.Device == d.Device
+    WHERE d.Active_Device_Installs > 0;
+
+// 3. Output to CSV - with a header
+OUTPUT @downloadResults
+TO @Output_DownloadResult_File
+USING Outputters.Csv(outputHeader:true);
